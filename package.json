@@ -1,0 +1,22 @@
+{
+  "name": "discord-stuff",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/steveshogren/discord-stuff.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/steveshogren/discord-stuff/issues"
+  },
+  "homepage": "https://github.com/steveshogren/discord-stuff#readme"
+}
