@@ -64,7 +64,7 @@ client.on('message', message => {
 
 
 const addPlayer = function(p, teamDamage) {
-    return "\"" + p.name + "\""
+    return ",\"" + p.name + "\""
         + "," + p.elo
         + "," + p.hero;
     // + "," + p.level
