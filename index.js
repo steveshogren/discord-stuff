@@ -64,7 +64,7 @@ client.on('message', message => {
 
 
 const addPlayer = function(p, teamDamage) {
-    return ",\"" + p.name + "\""
+    return "," + p.name
         + "," + p.elo
         + "," + p.hero;
     // + "," + p.level
@@ -130,7 +130,8 @@ const parseGame = function(d) {
                    + d.data.teams[1][0].elo
                   )/5;
     const game =
-              (Math.floor(d.data.length/60) + " minutes")
+              "=SPLIT(\""
+              + (Math.floor(d.data.length/60) + " minutes")
               + "," + (d.data.winningTeam == 0 ? "Team One Won" : "Team Two Won")
               + "," + t0Elo
               + "," + t0Damage.heroDamage
@@ -142,7 +143,7 @@ const parseGame = function(d) {
               + addPlayer(d.data.teams[0][2])
               + addPlayer(d.data.teams[0][3])
               + addPlayer(d.data.teams[0][4])
-              + "\"," + t1Elo
+              + "," + t1Elo
               + "," + t1Damage.heroDamage
               + "," + t1Damage.minionDamage
               + "," + t1Damage.jungleDamage
@@ -151,7 +152,7 @@ const parseGame = function(d) {
               + addPlayer(d.data.teams[1][1])
               + addPlayer(d.data.teams[1][2])
               + addPlayer(d.data.teams[1][3])
-              + addPlayer(d.data.teams[1][4]);
+              + addPlayer(d.data.teams[1][4]) + "\", \",\")";
     console.log(game);
     return game;
 };
