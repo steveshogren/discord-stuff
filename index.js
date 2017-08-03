@@ -23,7 +23,7 @@ const makeBanTimer = function(message, totalSeconds, remainingSeconds) {
     }, milliTimeLeft(totalSeconds, remainingSeconds));
 };
 const getGame = function getGame(gameId, callback) {
-    return http.get("https://api.agora.gg/games/" + gameId + "?lc=en&ssl=true", function(response) {
+    return http.get("https://api.agora.gg/v1/games/" + gameId + "?lc=en", function(response) {
         var body = '';
         response.on('data', function(d) {
             body += d;
@@ -42,6 +42,7 @@ client.on('message', message => {
   if (message.content.includes('custom.bot.csv')) {
       var gameid = message.content.substring(14).trim();
       getGame(gameid, function(d) {
+          //console.log(d);
           const game = parseGame(d);
           message.reply(game);
       });
@@ -103,56 +104,56 @@ const addPlayerDamage = function(p, teamDamage) {
 
 const parseGame = function(d) {
     const t0Damage =
-              addPlayerDamage(d.data.teams[0][4],
-              addPlayerDamage(d.data.teams[0][3],
-              addPlayerDamage(d.data.teams[0][2],
-              addPlayerDamage(d.data.teams[0][1],
-                              addPlayerDamage(d.data.teams[0][0], {})))));
+              addPlayerDamage(d.teams[0][4],
+              addPlayerDamage(d.teams[0][3],
+              addPlayerDamage(d.teams[0][2],
+              addPlayerDamage(d.teams[0][1],
+                              addPlayerDamage(d.teams[0][0], {})))));
 
     const t1Damage =
-              addPlayerDamage(d.data.teams[1][4],
-                              addPlayerDamage(d.data.teams[1][3],
-                                              addPlayerDamage(d.data.teams[1][2],
-                                                              addPlayerDamage(d.data.teams[1][1],
-                                                                              addPlayerDamage(d.data.teams[1][0], {})))));
+              addPlayerDamage(d.teams[1][4],
+                              addPlayerDamage(d.teams[1][3],
+                                              addPlayerDamage(d.teams[1][2],
+                                                              addPlayerDamage(d.teams[1][1],
+                                                                              addPlayerDamage(d.teams[1][0], {})))));
 
 
-    const t0Elo = (d.data.teams[0][4].elo
-                   + d.data.teams[0][3].elo
-                   + d.data.teams[0][2].elo
-                   + d.data.teams[0][1].elo
-                   + d.data.teams[0][0].elo
+    const t0Elo = (d.teams[0][4].elo
+                   + d.teams[0][3].elo
+                   + d.teams[0][2].elo
+                   + d.teams[0][1].elo
+                   + d.teams[0][0].elo
                   )/5;
-    const t1Elo = (d.data.teams[1][4].elo
-                   + d.data.teams[1][3].elo
-                   + d.data.teams[1][2].elo
-                   + d.data.teams[1][1].elo
-                   + d.data.teams[1][0].elo
+    const t1Elo = (d.teams[1][4].elo
+                   + d.teams[1][3].elo
+                   + d.teams[1][2].elo
+                   + d.teams[1][1].elo
+                   + d.teams[1][0].elo
                   )/5;
     const game =
               "=SPLIT(\""
-              + (Math.floor(d.data.length/60) + " minutes")
-              + "," + (d.data.winningTeam == 0 ? "Team One Won" : "Team Two Won")
+              + (Math.floor(d.length/60) + " minutes")
+              + "," + (d.winningTeam == 0 ? "Team One Won" : "Team Two Won")
               + "," + t0Elo
               + "," + t0Damage.heroDamage
               + "," + t0Damage.minionDamage
               + "," + t0Damage.jungleDamage
               + "," + t0Damage.towerDamage
-              + addPlayer(d.data.teams[0][0])
-              + addPlayer(d.data.teams[0][1])
-              + addPlayer(d.data.teams[0][2])
-              + addPlayer(d.data.teams[0][3])
-              + addPlayer(d.data.teams[0][4])
+              + addPlayer(d.teams[0][0])
+              + addPlayer(d.teams[0][1])
+              + addPlayer(d.teams[0][2])
+              + addPlayer(d.teams[0][3])
+              + addPlayer(d.teams[0][4])
               + "," + t1Elo
               + "," + t1Damage.heroDamage
               + "," + t1Damage.minionDamage
               + "," + t1Damage.jungleDamage
               + "," + t1Damage.towerDamage
-              + addPlayer(d.data.teams[1][0])
-              + addPlayer(d.data.teams[1][1])
-              + addPlayer(d.data.teams[1][2])
-              + addPlayer(d.data.teams[1][3])
-              + addPlayer(d.data.teams[1][4]) + "\", \",\")";
+              + addPlayer(d.teams[1][0])
+              + addPlayer(d.teams[1][1])
+              + addPlayer(d.teams[1][2])
+              + addPlayer(d.teams[1][3])
+              + addPlayer(d.teams[1][4]) + "\", \",\")";
     console.log(game);
     return game;
 };
