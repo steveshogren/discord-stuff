@@ -71,20 +71,6 @@ const addPlayer = function(p, teamDamage) {
     // + "," + p.level + "," + p.kills + "," + p.deaths + "," + p.assists + "," + p.towers + "," + p.heroDamage + "," + p.minionDamage + "," + p.jungleDamage + "," + p.towerDamage + "," + p.heroGamesPlayed + "," + p.heroWins + "," + p.heroKills + "," + p.heroDeaths + "," + p.heroAssists + "," + p.totalGamesPlayed + "," + p.totalWins + "," + p.totalKills + "," + p.totalDeaths + "," + p.totalAssists + "," + p.totalTowers;
 };
 
-const addPlayerDamage = function(p, teamDamage) {
-    teamDamage.heroDamage += p.heroDamage;
-    teamDamage.minionDamage += p.minionDamage;
-    teamDamage.jungleDamage += p.jungleDamage;
-    teamDamage.towerDamage += p.towerDamage;
-    return teamDamage;
-};
-
-const comp = function(f, g) {
-    return function(x) {
-        return g(f(x));
-    };
-};
-
 const map = function(f, coll) {
     var ret = [];
     for(var i = 0; i < coll.length; i++){
@@ -92,6 +78,7 @@ const map = function(f, coll) {
     }
     return ret;
 };
+
 const reduce = function(f, seed, coll) {
     var next = seed;
     for(var i = 0; i < coll.length; i++){
@@ -100,51 +87,34 @@ const reduce = function(f, seed, coll) {
     return next;
 };
 
+const addPlayerDamage = function(p, teamDamage) {
+    teamDamage.heroDamage += p.heroDamage;
+    teamDamage.minionDamage += p.minionDamage;
+    teamDamage.jungleDamage += p.jungleDamage;
+    teamDamage.towerDamage += p.towerDamage;
+    return teamDamage;
+};
+
 const getTeamDamage = function(team) {
-    var damage = {
-        heroDamage: 0,
-        minionDamage: 0,
-        jungleDamage: 0,
-        towerDamage: 0
-    };
+    var initialTeamSum = { heroDamage: 0, minionDamage: 0, jungleDamage: 0, towerDamage: 0 };
     return reduce(function(p, next) {
-        return addPlayerDamage(team[p])(next);
-    }, damage, [0,1,2,3,4]);
+        return addPlayerDamage(team[p], next);
+    }, initialTeamSum, [0,1,2,3,4]);
+};
+
+const getTeamElo = function(team) {
+    return (team[4].elo + team[3].elo + team[2].elo + team[1].elo + team[0].elo)/5;
 };
 
 const parseGame = function(d) {
-    const t0Dam = getTeamDamage(d.teams[0]);
-    const t1Dam = getTeamDamage(d.teams[1]);
+    const t0Damage = getTeamDamage(d.teams[0]);
+    const t1Damage = getTeamDamage(d.teams[1]);
 
-    const t0Damage =
-              addPlayerDamage(d.teams[0][4],
-                              addPlayerDamage(d.teams[0][3],
-                                              addPlayerDamage(d.teams[0][2],
-                                                              addPlayerDamage(d.teams[0][1],
-                                                                              addPlayerDamage(d.teams[0][0], {})))));
+    const t0Elo = getTeamElo(d.teams[0]);
+    const t1Elo = getTeamElo(d.teams[1]);
 
-    const t1Damage =
-              addPlayerDamage(d.teams[1][4],
-                              addPlayerDamage(d.teams[1][3],
-                                              addPlayerDamage(d.teams[1][2],
-                                                              addPlayerDamage(d.teams[1][1],
-                                                                              addPlayerDamage(d.teams[1][0], {})))));
-
-
-    const t0Elo = (d.teams[0][4].elo
-                   + d.teams[0][3].elo
-                   + d.teams[0][2].elo
-                   + d.teams[0][1].elo
-                   + d.teams[0][0].elo
-                  )/5;
-    const t1Elo = (d.teams[1][4].elo
-                   + d.teams[1][3].elo
-                   + d.teams[1][2].elo
-                   + d.teams[1][1].elo
-                   + d.teams[1][0].elo
-                  )/5;
     const game =
-              "=SPLIT(\""
+              '=SPLIT("'
               + (Math.floor(d.length/60) + " minutes")
               + "," + (d.winningTeam == 0 ? "Team One Won" : "Team Two Won")
               + "," + t0Elo
@@ -166,7 +136,7 @@ const parseGame = function(d) {
               + addPlayer(d.teams[1][1])
               + addPlayer(d.teams[1][2])
               + addPlayer(d.teams[1][3])
-              + addPlayer(d.teams[1][4]) + "\", \",\")";
+              + addPlayer(d.teams[1][4]) + '", ",")';
     console.log(game);
     return game;
 };
@@ -190,12 +160,11 @@ const runTests = function() {
     assertEqual([].toString(),map(function(x) {return x + 1;}, []).toString());
 
     const players = [
-        { heroDamage:1, minionDamage:1, jungleDamage:1, towerDamage:1 },
-        { heroDamage:0, minionDamage:0, jungleDamage:0, towerDamage:0 },
-        { heroDamage:3, minionDamage:3, jungleDamage:3, towerDamage:3 },
-        { heroDamage:2, minionDamage:2, jungleDamage:2, towerDamage:2 },
-        { heroDamage:4, minionDamage:4, jungleDamage:4, towerDamage:4 }
-
+        { elo:10, heroDamage:1, minionDamage:1, jungleDamage:1, towerDamage:1 },
+        { elo:20, heroDamage:0, minionDamage:0, jungleDamage:0, towerDamage:0 },
+        { elo:30, heroDamage:3, minionDamage:3, jungleDamage:3, towerDamage:3 },
+        { elo:40, heroDamage:2, minionDamage:2, jungleDamage:2, towerDamage:2 },
+        { elo:0, heroDamage:4, minionDamage:4, jungleDamage:4, towerDamage:4 }
     ];
     const expectedSum = {
         heroDamage:10,
@@ -205,6 +174,7 @@ const runTests = function() {
     };
 
     assertEqual(JSON.stringify(expectedSum, null, '\t'), JSON.stringify(getTeamDamage(players),null,'\t'));
+    assertEqual(20, getTeamElo(players));
 
     console.log(results);
 };
