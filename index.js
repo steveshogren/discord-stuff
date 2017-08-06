@@ -12,8 +12,8 @@ client.on('ready', () => {
 });
 
 const milliTimeLeft = function(totalSeconds, remainingSeconds) {
-    totalMilli = totalSeconds * 1000;
-    remainingMilli = remainingSeconds * 1000;
+    var totalMilli = totalSeconds * 1000;
+    var remainingMilli = remainingSeconds * 1000;
     return (totalMilli - remainingMilli);
 };
 
@@ -97,46 +97,40 @@ const addPlayerDamage = function(p, teamDamage) {
 
 const getTeamDamage = function(team) {
     var initialTeamSum = { heroDamage: 0, minionDamage: 0, jungleDamage: 0, towerDamage: 0 };
-    return reduce(function(p, next) {
-        return addPlayerDamage(team[p], next);
+    return reduce(function(p, ret) {
+        return addPlayerDamage(team[p], ret);
     }, initialTeamSum, [0,1,2,3,4]);
 };
 
 const getTeamElo = function(team) {
-    return (team[4].elo + team[3].elo + team[2].elo + team[1].elo + team[0].elo)/5;
+    return reduce(function(p, ret) {
+        return team[p].elo + ret;
+    }, 0, [0,1,2,3,4])/5;
+};
+
+const csvTeam = function(team) {
+    const tDamage = getTeamDamage(team);
+
+    return "," + getTeamElo(team)
+        + "," + tDamage.heroDamage
+        + "," + tDamage.minionDamage
+        + "," + tDamage.jungleDamage
+        + "," + tDamage.towerDamage
+        + addPlayer(team[0])
+        + addPlayer(team[1])
+        + addPlayer(team[2])
+        + addPlayer(team[3])
+        + addPlayer(team[4]);
 };
 
 const parseGame = function(d) {
-    const t0Damage = getTeamDamage(d.teams[0]);
-    const t1Damage = getTeamDamage(d.teams[1]);
-
-    const t0Elo = getTeamElo(d.teams[0]);
-    const t1Elo = getTeamElo(d.teams[1]);
-
     const game =
               '=SPLIT("'
               + (Math.floor(d.length/60) + " minutes")
               + "," + (d.winningTeam == 0 ? "Team One Won" : "Team Two Won")
-              + "," + t0Elo
-              + "," + t0Damage.heroDamage
-              + "," + t0Damage.minionDamage
-              + "," + t0Damage.jungleDamage
-              + "," + t0Damage.towerDamage
-              + addPlayer(d.teams[0][0])
-              + addPlayer(d.teams[0][1])
-              + addPlayer(d.teams[0][2])
-              + addPlayer(d.teams[0][3])
-              + addPlayer(d.teams[0][4])
-              + "," + t1Elo
-              + "," + t1Damage.heroDamage
-              + "," + t1Damage.minionDamage
-              + "," + t1Damage.jungleDamage
-              + "," + t1Damage.towerDamage
-              + addPlayer(d.teams[1][0])
-              + addPlayer(d.teams[1][1])
-              + addPlayer(d.teams[1][2])
-              + addPlayer(d.teams[1][3])
-              + addPlayer(d.teams[1][4]) + '", ",")';
+              + csvTeam(d.teams[0])
+              + csvTeam(d.teams[1])
+              + '", ",")';
     console.log(game);
     return game;
 };
