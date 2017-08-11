@@ -177,5 +177,5 @@ const runTests = function() {
 //    parseGame(d);
 //});
 
-runTests();
-//client.login(token);
+//runTests();
+client.login(token);
