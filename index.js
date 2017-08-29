@@ -33,7 +33,7 @@ client.on('message', message => {
         var gameid = message.content.substring(14).trim();
         getGame(gameid, function(d) {
             //console.log(d);
-            const game = parseGame(d);
+            const game = helpers.parseGame(d);
             message.reply(game);
         });
     }
@@ -49,52 +49,11 @@ client.on('message', message => {
             message.channel.send('WHERES YOUR BAN?');
         }, 1000 * 120);
     }
-
-
 });
 
 
-const addPlayer = function(p, teamDamage) {
-    return "," + p.name
-        + "," + p.elo
-        + "," + p.hero;
-    // + "," + p.level + "," + p.kills + "," + p.deaths + "," + p.assists + "," + p.towers + "," + p.heroDamage + "," + p.minionDamage + "," + p.jungleDamage + "," + p.towerDamage + "," + p.heroGamesPlayed + "," + p.heroWins + "," + p.heroKills + "," + p.heroDeaths + "," + p.heroAssists + "," + p.totalGamesPlayed + "," + p.totalWins + "," + p.totalKills + "," + p.totalDeaths + "," + p.totalAssists + "," + p.totalTowers;
-};
-
-
-
-
-const csvTeam = function(team) {
-    const tDamage = helpers.getTeamDamage(team);
-
-    return "," + helpers.getTeamElo(team)
-        + "," + tDamage.heroDamage
-        + "," + tDamage.minionDamage
-        + "," + tDamage.jungleDamage
-        + "," + tDamage.towerDamage
-        + addPlayer(team[0])
-        + addPlayer(team[1])
-        + addPlayer(team[2])
-        + addPlayer(team[3])
-        + addPlayer(team[4]);
-};
-
-const parseGame = function(d) {
-    const game =
-              '=SPLIT("'
-              + (Math.floor(d.length/60) + " minutes")
-              + "," + (d.winningTeam == 0 ? "Team One Won" : "Team Two Won")
-              + csvTeam(d.teams[0])
-              + csvTeam(d.teams[1])
-              + '", ",")';
-    console.log(game);
-    return game;
-};
-
-
-
 getGame("9d7403ba86d44193b6773847bb6e1bb9", function(d) {
-    parseGame(d);
+    helpers.parseGame(d);
 });
 
 //runTests();
