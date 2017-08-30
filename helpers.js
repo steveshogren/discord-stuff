@@ -1,13 +1,5 @@
 const banMessage = " seconds left";
 
-module.exports.map = function(f, coll) {
-    var ret = [];
-    for(var i = 0; i < coll.length; i++){
-        ret = ret.concat([f(coll[i])]);
-    }
-    return ret;
-};
-
 module.exports.reduce = function(f, seed, coll) {
     var next = seed;
     for(var i = 0; i < coll.length; i++){
@@ -16,16 +8,16 @@ module.exports.reduce = function(f, seed, coll) {
     return next;
 };
 
-module.exports.milliTimeLeft = function(totalSeconds, remainingSeconds) {
+const milliTimeLeft = function(totalSeconds, remainingSeconds) {
     var totalMilli = totalSeconds * 1000;
     var remainingMilli = remainingSeconds * 1000;
     return (totalMilli - remainingMilli);
-},
+};
 
-module.exports.makeBanTimer= function(message, totalSeconds, remainingSeconds) {
+module.exports.makeBanTimer = function(message, totalSeconds, remainingSeconds) {
     setTimeout(function() {
         message.channel.send(remainingSeconds + banMessage);
-    }, module.exports.milliTimeLeft(totalSeconds, remainingSeconds));
+    }, milliTimeLeft(totalSeconds, remainingSeconds));
 };
 
 const addPlayerDamage = function(p, teamDamage) {
@@ -49,16 +41,12 @@ module.exports.getTeamElo = function(team) {
     }, 0, [0,1,2,3,4])/5;
 };
 
-
 module.exports.addPlayer = function(p, teamDamage) {
     return "," + p.name
         + "," + p.elo
         + "," + p.hero;
     // + "," + p.level + "," + p.kills + "," + p.deaths + "," + p.assists + "," + p.towers + "," + p.heroDamage + "," + p.minionDamage + "," + p.jungleDamage + "," + p.towerDamage + "," + p.heroGamesPlayed + "," + p.heroWins + "," + p.heroKills + "," + p.heroDeaths + "," + p.heroAssists + "," + p.totalGamesPlayed + "," + p.totalWins + "," + p.totalKills + "," + p.totalDeaths + "," + p.totalAssists + "," + p.totalTowers;
 };
-
-
-
 
 module.exports.csvTeam = function(team) {
     const tDamage = helpers.getTeamDamage(team);

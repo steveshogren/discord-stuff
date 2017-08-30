@@ -12,7 +12,7 @@ client.on('ready', () => {
     console.log('I am ready!');
 });
 
-const getGame = function getGame(gameId, callback) {
+const getGame = function (gameId, callback) {
     return http.get("https://api.agora.gg/v1/games/" + gameId + "?lc=en", function(response) {
         var body = '';
         response.on('data', function(d) {

@@ -14,9 +14,6 @@ const runTests = function() {
     assertEqual(0,helpers.reduce(function(x,n) {return x + n;}, 0, []));
     assertEqual(0,helpers.reduce(function(x,n) {return x + n;}, 0, [0]));
 
-    assertEqual([1,2,3].toString(),helpers.map(function(x) {return x + 1;}, [0,1,2]).toString());
-    assertEqual([].toString(),helpers.map(function(x) {return x + 1;}, []).toString());
-
     const players = [
         { elo:10, heroDamage:1, minionDamage:1, jungleDamage:1, towerDamage:1 },
         { elo:20, heroDamage:0, minionDamage:0, jungleDamage:0, towerDamage:0 },
