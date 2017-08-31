@@ -2,3 +2,4 @@ node_modules
 /config/default.json
 /sshconnect.sh
 /custom-game-bot.pem
+/.node-persist/storage/e4da3b7fbbce2345d7772b0674a318d5

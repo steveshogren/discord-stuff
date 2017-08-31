@@ -2,10 +2,13 @@ const helpers = require('./helpers.js');
 
 const Discord = require('discord.js');
 const client = new Discord.Client();
+const storage = require('node-persist');
 
 const config = require('config');
 const token = config.get('token');
 
+
+const accoutMissingMessage = "Please setup your account with your profile URL like this: agora.add https://agora.gg/profile/3035800/madklowns";
 
 client.on('ready', () => {
     console.log('I am ready!');
@@ -16,6 +19,27 @@ client.on('message', message => {
     if (message.content === 'ping') {
         message.reply('pong');
     }
+
+    if (message.content.includes('agora.elo')) {
+
+        storage.initSync();
+        var agoraId = storage.getItemSync(message.author.id);
+        if(agoraId) {
+            helpers.playerEle(message, agoraId);
+        } else {
+            message.reply(accoutMissingMessage);
+        }
+    }
+
+    if (message.content.includes('agora.add')) {
+        const url = message.content.substring(9).trim();
+        if (url.startsWith('https:')) {
+            helpers.addPlayer(message, message.author.id, message.content.substring(9).trim());
+        } else {
+            message.reply(accoutMissingMessage);
+        }
+    }
+
     if (message.content.includes('custom.bot.csv')) {
         var gameid = message.content.substring(14).trim();
         helpers.getGame(gameid, function(d) {
@@ -39,9 +63,13 @@ client.on('message', message => {
 });
 
 
-helpers.getGame("9d7403ba86d44193b6773847bb6e1bb9", function(d) {
-    helpers.parseGame(d);
-});
+//helpers.getGame("9d7403ba86d44193b6773847bb6e1bb9", function(d) {
+//    helpers.parseGame(d);
+//});
+//storage.initSync();
+//helpers.playerElo({reply : function(m) {console.log(m);}}, storage.getItemSync("5"));
+//helpers.addPlayer({reply : function(m) {console.log(m);}}, "5", "https://agora.gg/profile/3035800/madklowns");
+//console.log("agoraId: " + storage.getItemSync("5"));
 
 //runTests();
-//client.login(token);
+client.login(token);

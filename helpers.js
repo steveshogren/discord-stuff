@@ -1,4 +1,5 @@
 const http = require('https');
+const storage = require('node-persist');
 
 const banMessage = " seconds left";
 
@@ -82,4 +83,27 @@ ex.parseGame = function(d) {
               + '", ",")';
     console.log(game);
     return game;
+};
+
+ex.playerElo = function(message, agoraId) {
+    http.get("https://api.agora.gg/v1/players/" + agoraId + "", function(response) {
+        var body = '';
+        response.on('data', function(d) {
+            body += d;
+        });
+        response.on('end', function() {
+            var parsed = JSON.parse(body);
+            var s = parsed.stats[0];
+            var elo = "Elo: " + Math.floor(s.elo) + ", Top " + Math.floor(s.percentile) + "%, Won " + s.wins + "/" + s.gamesPlayed;
+            console.log(elo);
+            message.reply(elo);
+        });
+    });
+};
+
+ex.addPlayer = function(message, discordId, agoraUrl) {
+    var agoraId = agoraUrl.substring(25).replace(/\/.*/, "");
+    storage.initSync();
+    storage.setItemSync(discordId, agoraId);
+    ex.playerElo(message, agoraId);
 };
