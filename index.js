@@ -1,6 +1,5 @@
 const helpers = require('./helpers.js');
 
-const http = require('https');
 const Discord = require('discord.js');
 const client = new Discord.Client();
 
@@ -12,18 +11,6 @@ client.on('ready', () => {
     console.log('I am ready!');
 });
 
-const getGame = function (gameId, callback) {
-    return http.get("https://api.agora.gg/v1/games/" + gameId + "?lc=en", function(response) {
-        var body = '';
-        response.on('data', function(d) {
-            body += d;
-        });
-        response.on('end', function() {
-            var parsed = JSON.parse(body);
-            callback(parsed);
-        });
-    });
-};
 
 client.on('message', message => {
     if (message.content === 'ping') {
@@ -31,7 +18,7 @@ client.on('message', message => {
     }
     if (message.content.includes('custom.bot.csv')) {
         var gameid = message.content.substring(14).trim();
-        getGame(gameid, function(d) {
+        helpers.getGame(gameid, function(d) {
             //console.log(d);
             const game = helpers.parseGame(d);
             message.reply(game);
@@ -52,7 +39,7 @@ client.on('message', message => {
 });
 
 
-getGame("9d7403ba86d44193b6773847bb6e1bb9", function(d) {
+helpers.getGame("9d7403ba86d44193b6773847bb6e1bb9", function(d) {
     helpers.parseGame(d);
 });
 

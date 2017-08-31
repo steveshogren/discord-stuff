@@ -1,12 +1,8 @@
+const http = require('https');
+
 const banMessage = " seconds left";
 
-module.exports.reduce = function(f, seed, coll) {
-    var next = seed;
-    for(var i = 0; i < coll.length; i++){
-        next = f(coll[i], next);
-    }
-    return next;
-};
+const ex = module.exports;
 
 const milliTimeLeft = function(totalSeconds, remainingSeconds) {
     var totalMilli = totalSeconds * 1000;
@@ -14,10 +10,23 @@ const milliTimeLeft = function(totalSeconds, remainingSeconds) {
     return (totalMilli - remainingMilli);
 };
 
-module.exports.makeBanTimer = function(message, totalSeconds, remainingSeconds) {
+ex.makeBanTimer = function(message, totalSeconds, remainingSeconds) {
     setTimeout(function() {
         message.channel.send(remainingSeconds + banMessage);
     }, milliTimeLeft(totalSeconds, remainingSeconds));
+};
+
+ex.getGame = function (gameId, callback) {
+    return http.get("https://api.agora.gg/v1/games/" + gameId + "?lc=en", function(response) {
+        var body = '';
+        response.on('data', function(d) {
+            body += d;
+        });
+        response.on('end', function() {
+            var parsed = JSON.parse(body);
+            callback(parsed);
+        });
+    });
 };
 
 const addPlayerDamage = function(p, teamDamage) {
@@ -28,27 +37,27 @@ const addPlayerDamage = function(p, teamDamage) {
     return teamDamage;
 };
 
-module.exports.getTeamDamage = function(team) {
+ex.getTeamDamage = function(team) {
     var initialTeamSum = { heroDamage: 0, minionDamage: 0, jungleDamage: 0, towerDamage: 0 };
-    return module.exports.reduce(function(p, ret) {
+    return [0,1,2,3,4].reduce(function(ret, p) {
         return addPlayerDamage(team[p], ret);
-    }, initialTeamSum, [0,1,2,3,4]);
+    }, initialTeamSum);
 };
 
-module.exports.getTeamElo = function(team) {
-    return module.exports.reduce(function(p, ret) {
+ex.getTeamElo = function(team) {
+    return [0,1,2,3,4].reduce(function(ret, p) {
         return team[p].elo + ret;
-    }, 0, [0,1,2,3,4])/5;
+    }, 0)/5;
 };
 
-module.exports.addPlayer = function(p, teamDamage) {
+ex.addPlayer = function(p, teamDamage) {
     return "," + p.name
         + "," + p.elo
         + "," + p.hero;
     // + "," + p.level + "," + p.kills + "," + p.deaths + "," + p.assists + "," + p.towers + "," + p.heroDamage + "," + p.minionDamage + "," + p.jungleDamage + "," + p.towerDamage + "," + p.heroGamesPlayed + "," + p.heroWins + "," + p.heroKills + "," + p.heroDeaths + "," + p.heroAssists + "," + p.totalGamesPlayed + "," + p.totalWins + "," + p.totalKills + "," + p.totalDeaths + "," + p.totalAssists + "," + p.totalTowers;
 };
 
-module.exports.csvTeam = function(team) {
+ex.csvTeam = function(team) {
     const tDamage = helpers.getTeamDamage(team);
 
     return "," + helpers.getTeamElo(team)
@@ -63,7 +72,7 @@ module.exports.csvTeam = function(team) {
         + addPlayer(team[4]);
 };
 
-module.exports.parseGame = function(d) {
+ex.parseGame = function(d) {
     const game =
               '=SPLIT("'
               + (Math.floor(d.length/60) + " minutes")
