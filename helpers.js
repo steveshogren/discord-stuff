@@ -58,18 +58,18 @@ ex.addPlayer = function(p, teamDamage) {
 };
 
 ex.csvTeam = function(team) {
-    const tDamage = helpers.getTeamDamage(team);
+    const tDamage = ex.getTeamDamage(team);
 
-    return "," + helpers.getTeamElo(team)
+    return "," + ex.getTeamElo(team)
         + "," + tDamage.heroDamage
         + "," + tDamage.minionDamage
         + "," + tDamage.jungleDamage
         + "," + tDamage.towerDamage
-        + addPlayer(team[0])
-        + addPlayer(team[1])
-        + addPlayer(team[2])
-        + addPlayer(team[3])
-        + addPlayer(team[4]);
+        + ex.addPlayer(team[0])
+        + ex.addPlayer(team[1])
+        + ex.addPlayer(team[2])
+        + ex.addPlayer(team[3])
+        + ex.addPlayer(team[4]);
 };
 
 ex.parseGame = function(d) {
@@ -77,8 +77,8 @@ ex.parseGame = function(d) {
               '=SPLIT("'
               + (Math.floor(d.length/60) + " minutes")
               + "," + (d.winningTeam == 0 ? "Team One Won" : "Team Two Won")
-              + csvTeam(d.teams[0])
-              + csvTeam(d.teams[1])
+              + ex.csvTeam(d.teams[0])
+              + ex.csvTeam(d.teams[1])
               + '", ",")';
     console.log(game);
     return game;
