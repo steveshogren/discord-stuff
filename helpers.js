@@ -1,8 +1,6 @@
 const http = require('https');
 const storage = require('node-persist');
 
-const banMessage = " seconds left";
-
 const ex = module.exports;
 
 const milliTimeLeft = function(totalSeconds, remainingSeconds) {
@@ -11,9 +9,11 @@ const milliTimeLeft = function(totalSeconds, remainingSeconds) {
     return (totalMilli - remainingMilli);
 };
 
+ex.banMessage = " seconds left";
+
 ex.makeBanTimer = function(message, totalSeconds, remainingSeconds) {
     setTimeout(function() {
-        message.channel.send(remainingSeconds + banMessage);
+        message.channel.send(remainingSeconds + ex.banMessage);
     }, milliTimeLeft(totalSeconds, remainingSeconds));
 };
 
@@ -51,26 +51,25 @@ ex.getTeamElo = function(team) {
     }, 0)/5;
 };
 
-ex.addPlayer = function(p, teamDamage) {
-    return "," + p.name
-        + "," + p.elo
-        + "," + p.hero;
-    // + "," + p.level + "," + p.kills + "," + p.deaths + "," + p.assists + "," + p.towers + "," + p.heroDamage + "," + p.minionDamage + "," + p.jungleDamage + "," + p.towerDamage + "," + p.heroGamesPlayed + "," + p.heroWins + "," + p.heroKills + "," + p.heroDeaths + "," + p.heroAssists + "," + p.totalGamesPlayed + "," + p.totalWins + "," + p.totalKills + "," + p.totalDeaths + "," + p.totalAssists + "," + p.totalTowers;
-};
 
 ex.csvTeam = function(team) {
     const tDamage = ex.getTeamDamage(team);
+    const playerCsv = function(p, teamDamage) {
+        return "," + p.name
+            + "," + p.elo
+            + "," + p.hero;
+    };
 
     return "," + ex.getTeamElo(team)
         + "," + tDamage.heroDamage
         + "," + tDamage.minionDamage
         + "," + tDamage.jungleDamage
         + "," + tDamage.towerDamage
-        + ex.addPlayer(team[0])
-        + ex.addPlayer(team[1])
-        + ex.addPlayer(team[2])
-        + ex.addPlayer(team[3])
-        + ex.addPlayer(team[4]);
+        + playerCsv(team[0])
+        + playerCsv(team[1])
+        + playerCsv(team[2])
+        + playerCsv(team[3])
+        + playerCsv(team[4]);
 };
 
 ex.parseGame = function(d) {

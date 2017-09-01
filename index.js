@@ -8,7 +8,7 @@ const config = require('config');
 const token = config.get('token');
 
 
-const accoutMissingMessage = "Please setup your account with your profile URL like this: agora.add https://agora.gg/profile/3035800/madklowns";
+const accoutMissingMessage = "Please setup your account with your profile URL like this: \nagora.add https://agora.gg/profile/3035800/madklowns";
 
 client.on('ready', () => {
     console.log('I am ready!');
@@ -20,18 +20,18 @@ client.on('message', message => {
         message.reply('pong');
     }
 
-    if (message.content.includes('agora.elo')) {
+    if (message.content.startsWith('agora.elo')) {
 
         storage.initSync();
         var agoraId = storage.getItemSync(message.author.id);
         if(agoraId) {
-            helpers.playerEle(message, agoraId);
+            helpers.playerElo(message, agoraId);
         } else {
             message.reply(accoutMissingMessage);
         }
     }
 
-    if (message.content.includes('agora.add')) {
+    if (message.content.startsWith('agora.add')) {
         const url = message.content.substring(9).trim();
         if (url.startsWith('https:')) {
             helpers.addPlayer(message, message.author.id, message.content.substring(9).trim());
