@@ -93,7 +93,7 @@ ex.playerElo = function(message, agoraId) {
         response.on('end', function() {
             var parsed = JSON.parse(body);
             var s = parsed.stats[0];
-            var elo = parsed.name +  " Elo: " + Math.floor(s.elo) + ", Top " + Math.floor(s.percentile) + "%, Won " + s.wins + "/" + s.gamesPlayed;
+            var elo = parsed.name +  " Elo: " + Math.floor(s.elo) + ", Top " + Math.floor(s.percentile) + "%, Won " + s.wins + "/" + s.gamesPlayed + " (" + Math.floor((s.wins/s.gamesPlayed)*100) +  "%)";
             console.log(elo);
             message.reply(elo);
         });
