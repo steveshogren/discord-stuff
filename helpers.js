@@ -84,7 +84,7 @@ ex.parseGame = function(d) {
     return game;
 };
 
-ex.playerElo = function(message, agoraId) {
+ex.playerElo = function(message, agoraId, client) {
     http.get("https://api.agora.gg/v1/players/" + agoraId + "", function(response) {
         var body = '';
         response.on('data', function(d) {
@@ -93,16 +93,29 @@ ex.playerElo = function(message, agoraId) {
         response.on('end', function() {
             var parsed = JSON.parse(body);
             var s = parsed.stats[0];
-            var elo = parsed.name +  " Elo: " + Math.floor(s.elo) + ", Top " + Math.floor(s.percentile) + "%, Won " + s.wins + "/" + s.gamesPlayed + " (" + Math.floor((s.wins/s.gamesPlayed)*100) +  "%)";
+            var elo = Math.floor(s.elo);
+            var icon = "";
+            if(client) {
+                if (elo > 1100 && elo < 1300) {
+                    icon = client.emojis.find("name", "silver");
+                } else if (elo >= 1300 && elo < 1500) {
+                    icon = client.emojis.find("name", "gold");
+                } else if (elo >= 1500) {
+                    icon = client.emojis.find("name", "platinum");
+                } else if (elo < 1100) {
+                    icon = ":(";
+                }
+            }
+            elo = icon + " " + parsed.name + " Elo: **" + elo + "**, Top " + Math.floor(s.percentile) + "%, Won " + s.wins + "/" + s.gamesPlayed + " (" + Math.floor((s.wins/s.gamesPlayed)*100) +  "%)";
             console.log(elo);
             message.reply(elo);
         });
     });
 };
 
-ex.addPlayer = function(message, discordId, agoraUrl) {
+ex.addPlayer = function(message, discordId, agoraUrl, client) {
     var agoraId = agoraUrl.substring(25).replace(/\/.*/, "");
     storage.initSync();
     storage.setItemSync(discordId, agoraId);
-    ex.playerElo(message, agoraId);
+    ex.playerElo(message, agoraId, client);
 };

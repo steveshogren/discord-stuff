@@ -19,22 +19,35 @@ client.on('message', message => {
     if (message.content === 'ping') {
         message.reply('pong');
     }
-
-    if (message.content.startsWith('agora.elo')) {
+    if (message.content.startsWith('agora.elo')
+        || message.mentions.users.map(function(u){ return u.username;}).includes('custom-game-bot')
+       ){
 
         storage.initSync();
+
         var agoraId = storage.getItemSync(message.author.id);
         if(agoraId) {
-            helpers.playerElo(message, agoraId);
+            helpers.playerElo(message, agoraId, client);
         } else {
             message.reply(accoutMissingMessage);
         }
+        const usersMentioned =  message.mentions.users.map(function(u) {return {username: u.username, id:u.id};});
+        usersMentioned.forEach(function(discordInfo,idx, _){
+            if (discordInfo.username != 'custom-game-bot' && discordInfo.id != message.author.id) {
+                var agoraId = storage.getItemSync(discordInfo.id);
+                if(agoraId) {
+                    helpers.playerElo(message, agoraId, client);
+                } else {
+                    message.reply(discordInfo.username + " is not setup.");
+                }
+            }
+        });
     }
 
     if (message.content.startsWith('agora.add')) {
         const url = message.content.substring(9).trim();
         if (url.startsWith('https:')) {
-            helpers.addPlayer(message, message.author.id, message.content.substring(9).trim());
+            helpers.addPlayer(message, message.author.id, message.content.substring(9).trim(), client);
         } else {
             message.reply(accoutMissingMessage);
         }
@@ -67,8 +80,8 @@ client.on('message', message => {
 //    helpers.parseGame(d);
 //});
 //storage.initSync();
-//helpers.playerElo({reply : function(m) {console.log(m);}}, storage.getItemSync("5"));
-//helpers.addPlayer({reply : function(m) {console.log(m);}}, "5", "https://agora.gg/profile/3035800/madklowns");
+//helpers.playerElo({reply : function(m) {console.log(m);}}, storage.getItemSync("5"), null);
+//helpers.addPlayer({reply : function(m) {console.log(m);}}, "5", "https://agora.gg/profile/3035800/madklowns", null);
 //console.log("agoraId: " + storage.getItemSync("5"));
 
 //runTests();
